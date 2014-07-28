@@ -1,5 +1,5 @@
 #
-# Copyright 2013 The Android Open Source Project
+# Copyright 2014 JCROM Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=hammerhead TARGET_DEVICE=hammerhead BUILD_FINGERPRINT=google/hammerhead/hammerhead:4.4.4/KTU84Q/1253334:user/release-keys PRIVATE_BUILD_DESC="hammerhead-user 4.4.4 KTU84Q 1253334 release-keys"
 
-PRODUCT_NAME := full_hammerhead
+PRODUCT_NAME := jcrom_hammerhead
 PRODUCT_DEVICE := hammerhead
 PRODUCT_BRAND := google
 PRODUCT_MODEL := Nexus 5
