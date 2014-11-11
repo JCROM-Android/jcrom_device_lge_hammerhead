@@ -166,8 +166,8 @@ PRODUCT_PACKAGES += \
     libqcomvoiceprocessingdescriptors \
     libqcompostprocbundle
 
-PRODUCT_COPY_FILES += \
-    device/lge/hammerhead/audio_effects.conf:system/vendor/etc/audio_effects.conf
+#PRODUCT_COPY_FILES += \
+#    device/lge/hammerhead/audio_effects.conf:system/vendor/etc/audio_effects.conf
 
 PRODUCT_PACKAGES += \
     libqomx_core \
