@@ -1,5 +1,5 @@
 #
-# Copyright 2013 The Android Open-Source Project
+# Copyright 2013 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-$(call inherit-product, device/lge/hammerhead/full_hammerhead.mk)
 
-PRODUCT_NAME := aosp_hammerhead
+# Sample: This is where we'd set a backup provider if we had one
+# $(call inherit-product, device/sample/products/backup_overlay.mk)
+
+# Get the long list of APNs
+PRODUCT_COPY_FILES := device/lge/hammerhead/apns-full-conf.xml:system/etc/apns-conf.xml
 
 PRODUCT_PACKAGES += \
     Launcher3
 
+# Inherit from the common Open Source product configuration
+$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
+
+PRODUCT_NAME := aosp_hammerhead
+PRODUCT_DEVICE := hammerhead
+PRODUCT_BRAND := Android
+PRODUCT_MODEL := AOSP on HammerHead
+PRODUCT_MANUFACTURER := LGE
+PRODUCT_RESTRICT_VENDOR_FILES := true
+
+$(call inherit-product, device/lge/hammerhead/device.mk)
+$(call inherit-product-if-exists, vendor/lge/hammerhead/device-vendor.mk)
+$(call inherit-product-if-exists, vendor/lge/hammerhead/hammerhead-vendor.mk)
+$(call inherit-product-if-exists, vendor/aosp/lge/hammerhead/aosp.mk)
+$(call inherit-product, device/aosp/common/aosp.mk)
