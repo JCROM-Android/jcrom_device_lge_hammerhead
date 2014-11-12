@@ -214,6 +214,7 @@
 /system/etc/updatecmds/google_generic_update.txt
 /system/etc/DxHDCP.cfg
 /system/lib/soundfx/libfmas.so
+/system/lib/libmmcamera_interface.so
 /system/lib/libnativehelper_compat_libc++.so
 /system/lib/librefocus.so
 /system/lib/librpmb.so
