@@ -220,7 +220,7 @@
 /system/lib/librpmb.so
 /system/lib/libssd.so
 /system/lib/libvcdecoder_jni.so
-/system/media/bootanimation.zip
+/system/lib/libvorbisencoder.so
 /system/vendor/firmware/discretix/dxhdcp2.b00
 /system/vendor/firmware/discretix/dxhdcp2.b01
 /system/vendor/firmware/discretix/dxhdcp2.b02
