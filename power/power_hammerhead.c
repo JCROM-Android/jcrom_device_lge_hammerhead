@@ -35,6 +35,8 @@
 #include <hardware/hardware.h>
 #include <hardware/power.h>
 
+#include <cutils/properties.h>
+
 #define STATE_ON "state=1"
 #define STATE_OFF "state=0"
 #define STATE_HDR_ON "state=2"
@@ -51,6 +53,14 @@
 #define LOW_POWER_MIN_FREQ "300000"
 #define NORMAL_MAX_FREQ "2265600"
 #define UEVENT_STRING "online@/devices/system/cpu/"
+
+static char *low_power_max_freq[] = {
+    LOW_POWER_MAX_FREQ,
+    "1267200",
+    "1574400",
+    "1728000",
+    NORMAL_MAX_FREQ
+};
 
 static int client_sockfd;
 static struct sockaddr_un client_addr;
@@ -72,6 +82,22 @@ static char *cpu_path_max[] = {
 static bool freq_set[TOTAL_CPUS];
 static bool low_power_mode = false;
 static pthread_mutex_t low_power_mode_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static int get_low_power_max_freq() {
+ 
+    char select_mode[PROPERTY_VALUE_MAX];
+    int select_num = 0;
+
+    property_get("persist.sys.max.freq", select_mode, NULL);
+
+    if ((strcmp(select_mode, "0") == 0) || (strcmp(select_mode, "1") == 0) || 
+        (strcmp(select_mode, "2") == 0) || (strcmp(select_mode, "3") == 0) ||
+        (strcmp(select_mode, "4") == 0)) {
+        select_num = atoi(select_mode);
+    }
+
+    return select_num;
+}
 
 static void socket_init()
 {
@@ -115,6 +141,7 @@ static int uevent_event()
     char msg[UEVENT_MSG_LEN];
     char *cp;
     int n, cpu, ret, retry = RETRY_TIME_CHANGING_FREQ;
+    int select_num = 0;
 
     n = recv(pfd.fd, msg, UEVENT_MSG_LEN, MSG_DONTWAIT);
     if (n <= 0) {
@@ -137,9 +164,10 @@ static int uevent_event()
 
         pthread_mutex_lock(&low_power_mode_lock);
         if (low_power_mode && !freq_set[cpu]) {
+            select_num = get_low_power_max_freq();
             while (retry) {
                 sysfs_write(cpu_path_min[cpu], LOW_POWER_MIN_FREQ);
-                ret = sysfs_write(cpu_path_max[cpu], LOW_POWER_MAX_FREQ);
+                ret = sysfs_write(cpu_path_max[cpu], low_power_max_freq[select_num]);
                 if (!ret) {
                     freq_set[cpu] = true;
                     break;
@@ -342,6 +370,7 @@ static void power_hint( __attribute__((unused)) struct power_module *module,
                       power_hint_t hint, __attribute__((unused)) void *data)
 {
     int cpu, ret;
+    int select_num = 0;
 
     switch (hint) {
         case POWER_HINT_INTERACTION:
@@ -358,29 +387,32 @@ static void power_hint( __attribute__((unused)) struct power_module *module,
             break;
 
         case POWER_HINT_LOW_POWER:
-             pthread_mutex_lock(&low_power_mode_lock);
-             if (data) {
-                 low_power_mode = true;
-                 for (cpu = 0; cpu < TOTAL_CPUS; cpu++) {
-                     sysfs_write(cpu_path_min[cpu], LOW_POWER_MIN_FREQ);
-                     ret = sysfs_write(cpu_path_max[cpu], LOW_POWER_MAX_FREQ);
-                     if (!ret) {
-                         freq_set[cpu] = true;
-                     }
-                 }
-             } else {
-                 low_power_mode = false;
-                 for (cpu = 0; cpu < TOTAL_CPUS; cpu++) {
-                     ret = sysfs_write(cpu_path_max[cpu], NORMAL_MAX_FREQ);
-                     if (!ret) {
-                         freq_set[cpu] = false;
-                     }
-                 }
-             }
-             pthread_mutex_unlock(&low_power_mode_lock);
-             break;
+
+            select_num = get_low_power_max_freq();
+
+            pthread_mutex_lock(&low_power_mode_lock);
+            if (data) {
+                low_power_mode = true;
+                for (cpu = 0; cpu < TOTAL_CPUS; cpu++) {
+                    sysfs_write(cpu_path_min[cpu], LOW_POWER_MIN_FREQ);
+                    ret = sysfs_write(cpu_path_max[cpu], low_power_max_freq[select_num]);
+                    if (!ret) {
+                        freq_set[cpu] = true;
+                    }
+                }
+            } else {
+                low_power_mode = false;
+                for (cpu = 0; cpu < TOTAL_CPUS; cpu++) {
+                    ret = sysfs_write(cpu_path_max[cpu], NORMAL_MAX_FREQ);
+                    if (!ret) {
+                        freq_set[cpu] = false;
+                    }
+                }
+            }
+            pthread_mutex_unlock(&low_power_mode_lock);
+            break;
         default:
-             break;
+            break;
     }
 }
 
