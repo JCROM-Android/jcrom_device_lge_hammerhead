@@ -34,6 +34,7 @@
 /system/bin/time_daemon
 /system/bin/usbhub
 /system/bin/usbhub_init
+/system/etc/audio_effects.conf
 /system/etc/acdbdata/MTP/MTP_Bluetooth_cal.acdb
 /system/etc/firmware/cpp_firmware_v1_1_1.fw
 /system/etc/firmware/cpp_firmware_v1_1_6.fw
